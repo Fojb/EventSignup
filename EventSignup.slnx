@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="EventSignup.Api/EventSignup.Api.csproj" Id="f1418097-8c35-47ce-920a-3d870cb8443a" />
+  <Project Path="EventSignup.Client/EventSignup.Client.csproj" />
+  <Project Path="EventSignup.Data/EventSignup.Data.csproj" Id="10da81c7-e9e1-4d6d-8a1c-2ad99e83da9e" />
+  <Project Path="EventSignup/EventSignup.csproj" />
+</Solution>

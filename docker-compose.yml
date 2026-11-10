@@ -1,0 +1,14 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: EventSignup.Api/Dockerfile
+    ports:
+      - "5100:8080"
+
+  web:
+    build:
+      context: .
+      dockerfile: EventSignup/Dockerfile
+    ports:
+      - "5200:8080"
