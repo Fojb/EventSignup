@@ -19,3 +19,39 @@ Accept: application/json
 ### Unknown event -> 404
 GET {{EventSignup.Api_HostAddress}}/events/9999
 Accept: application/json
+
+### Register -> 201 (run twice -> 409 already registered)
+POST {{EventSignup.Api_HostAddress}}/events/1/registrations
+Content-Type: application/json
+
+{
+  "fullName": "Ana Novak",
+  "email": "ana.novak@example.com"
+}
+
+### Full event -> 409
+POST {{EventSignup.Api_HostAddress}}/events/7/registrations
+Content-Type: application/json
+
+{
+  "fullName": "Ana Novak",
+  "email": "ana.novak@example.com"
+}
+
+### Past event -> 422
+POST {{EventSignup.Api_HostAddress}}/events/11/registrations
+Content-Type: application/json
+
+{
+  "fullName": "Ana Novak",
+  "email": "ana.novak@example.com"
+}
+
+### Invalid input -> 400
+POST {{EventSignup.Api_HostAddress}}/events/1/registrations
+Content-Type: application/json
+
+{
+  "fullName": "",
+  "email": "not-an-email"
+}

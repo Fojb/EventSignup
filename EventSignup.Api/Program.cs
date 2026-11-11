@@ -29,6 +29,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<RegistrationService>();
 
 // The Blazor UI is served from a different origin (host project), so the browser needs CORS to call the API.
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
