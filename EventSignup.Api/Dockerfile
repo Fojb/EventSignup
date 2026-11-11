@@ -1,4 +1,4 @@
-# Build context: solution root (the API references EventSignup.Data).
+# Build context: solution root (the API references EventSignup.Data and EventSignup.Shared).
 #   docker build -f EventSignup.Api/Dockerfile -t eventsignup-api .
 
 # ---- build ----
@@ -8,10 +8,12 @@ WORKDIR /src
 # Copy only project files first so `dotnet restore` is cached until dependencies change.
 COPY EventSignup.Api/EventSignup.Api.csproj EventSignup.Api/
 COPY EventSignup.Data/EventSignup.Data.csproj EventSignup.Data/
+COPY EventSignup.Shared/EventSignup.Shared.csproj EventSignup.Shared/
 RUN dotnet restore EventSignup.Api/EventSignup.Api.csproj
 
 COPY EventSignup.Api/ EventSignup.Api/
 COPY EventSignup.Data/ EventSignup.Data/
+COPY EventSignup.Shared/ EventSignup.Shared/
 RUN dotnet publish EventSignup.Api/EventSignup.Api.csproj -c Release -o /app/publish --no-restore
 
 # ---- runtime ----
