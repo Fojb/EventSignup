@@ -1,5 +1,124 @@
+:root {
+    --color-text: #1f2328;
+    --color-muted: #656d76;
+    --color-border: #d0d7de;
+    --color-bg: #f6f8fa;
+    --color-primary: #0969da;
+    --color-ok: #1a7f37;
+    --color-danger: #cf222e;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.5;
+}
+
+a {
+    color: var(--color-primary);
+}
+
+.container {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
 h1:focus {
     outline: none;
+}
+
+input, .btn {
+    font: inherit;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background: #fff;
+}
+
+.btn {
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
+.event-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.event-card {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.event-card.is-past {
+    opacity: 0.6;
+}
+
+.event-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.event-meta, .muted {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+.badge {
+    display: inline-block;
+    margin-top: 0.35rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid currentColor;
+}
+
+.badge-ok {
+    color: var(--color-ok);
+}
+
+.badge-danger {
+    color: var(--color-danger);
+}
+
+.badge-muted {
+    color: var(--color-muted);
+}
+
+.alert-error {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: #ffebe9;
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+}
+
+.event-details {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1rem;
+}
+
+.event-details dt {
+    color: var(--color-muted);
+}
+
+.event-details dd {
+    margin: 0;
 }
 
 .valid.modified:not([type=checkbox]) {

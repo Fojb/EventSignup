@@ -1,0 +1,72 @@
+@page "/events/{Id:int}"
+@inject EventsApiClient Api
+
+<PageTitle>@(details?.Title ?? "Dogodek")</PageTitle>
+
+<p><a href="">← Nazaj na dogodke</a></p>
+
+@if (error is not null)
+{
+    <p class="alert alert-error">@error</p>
+}
+else if (!loaded)
+{
+    <p>Nalaganje…</p>
+}
+else if (details is null)
+{
+    <h1>Dogodek ne obstaja</h1>
+    <p>Iskanega dogodka ni bilo mogoče najti.</p>
+}
+else
+{
+    <h1>@details.Title</h1>
+
+    <dl class="event-details">
+        <dt>Kdaj</dt>
+        <dd>@details.StartsAt.ToString("dd. MM. yyyy, HH:mm")</dd>
+
+        <dt>Kje</dt>
+        <dd>@details.Location</dd>
+
+        <dt>Zasedenost</dt>
+        <dd>
+            <AvailabilityBadge FreeSpots="details.FreeSpots" Capacity="details.Capacity" IsPast="details.IsPast" />
+            <span class="muted">(prijavljenih: @details.RegisteredCount, kapaciteta: @details.Capacity)</span>
+        </dd>
+    </dl>
+
+    @if (!string.IsNullOrWhiteSpace(details.Description))
+    {
+        <p>@details.Description</p>
+    }
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private EventDetailsResponse? details;
+    private bool loaded;
+    private string? error;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        error = null;
+        loaded = false;
+
+        try
+        {
+            details = await Api.GetEventAsync(Id);
+        }
+        catch (ApiException ex)
+        {
+            error = ex.Message;
+        }
+        catch (HttpRequestException)
+        {
+            error = "Strežnik ni dosegljiv. Poskusite znova kasneje.";
+        }
+
+        loaded = true;
+    }
+}
