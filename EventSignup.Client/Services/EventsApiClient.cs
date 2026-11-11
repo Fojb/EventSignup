@@ -45,6 +45,15 @@ public class EventsApiClient(HttpClient http)
         return (await response.Content.ReadFromJsonAsync<RegistrationResponse>(cancellationToken))!;
     }
 
+    public async Task<EventSearchResponse> SearchAsync(string query, CancellationToken cancellationToken = default)
+    {
+        using var response = await http.PostAsJsonAsync(
+            "events/search", new EventSearchRequest { Query = query }, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        return (await response.Content.ReadFromJsonAsync<EventSearchResponse>(cancellationToken))!;
+    }
+
     private static string FormatDate(DateOnly date) => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     // Turns an API error (RFC 7807 ProblemDetails) into an exception with a user-readable message.
