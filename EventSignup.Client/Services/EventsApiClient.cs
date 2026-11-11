@@ -36,6 +36,15 @@ public class EventsApiClient(HttpClient http)
         return await response.Content.ReadFromJsonAsync<EventDetailsResponse>(cancellationToken);
     }
 
+    public async Task<RegistrationResponse> RegisterAsync(
+        int eventId, CreateRegistrationRequest request, CancellationToken cancellationToken = default)
+    {
+        using var response = await http.PostAsJsonAsync($"events/{eventId}/registrations", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        return (await response.Content.ReadFromJsonAsync<RegistrationResponse>(cancellationToken))!;
+    }
+
     private static string FormatDate(DateOnly date) => date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     // Turns an API error (RFC 7807 ProblemDetails) into an exception with a user-readable message.
@@ -56,10 +65,16 @@ public class EventsApiClient(HttpClient http)
             // Body was not ProblemDetails JSON; fall back to the status code below.
         }
 
-        throw new ApiException(problem?.Detail ?? problem?.Title ?? $"Zahteva ni uspela ({(int)response.StatusCode}).");
+        // Validation errors (400) carry their messages in "errors" instead of "detail".
+        var validationMessages = problem?.Errors?.SelectMany(e => e.Value).ToList();
+        var message = validationMessages is { Count: > 0 }
+            ? string.Join(" ", validationMessages)
+            : problem?.Detail ?? problem?.Title ?? $"Zahteva ni uspela ({(int)response.StatusCode}).";
+
+        throw new ApiException(message);
     }
 
-    private record ApiProblem(string? Title, string? Detail);
+    private record ApiProblem(string? Title, string? Detail, Dictionary<string, string[]>? Errors);
 }
 
 public class ApiException(string message) : Exception(message);

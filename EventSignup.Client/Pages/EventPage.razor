@@ -40,6 +40,51 @@ else
     {
         <p>@details.Description</p>
     }
+
+    <section class="registration">
+        <h2>Prijava</h2>
+
+        @if (successMessage is not null)
+        {
+            <p class="alert alert-success">@successMessage</p>
+        }
+
+        @if (details.IsPast)
+        {
+            <p class="muted">Dogodek je že minil, prijave niso več mogoče.</p>
+        }
+        else if (details.FreeSpots <= 0)
+        {
+            <p class="muted">Dogodek je zaseden, prostih mest ni več.</p>
+        }
+        else
+        {
+            <EditForm Model="form" OnValidSubmit="RegisterAsync" FormName="registration" novalidate>
+                <DataAnnotationsValidator />
+
+                <div class="field">
+                    <label for="fullName">Ime in priimek</label>
+                    <InputText id="fullName" @bind-Value="form.FullName" autocomplete="name" />
+                    <ValidationMessage For="() => form.FullName" />
+                </div>
+
+                <div class="field">
+                    <label for="email">E-pošta</label>
+                    <InputText id="email" type="email" @bind-Value="form.Email" autocomplete="email" />
+                    <ValidationMessage For="() => form.Email" />
+                </div>
+
+                @if (registrationError is not null)
+                {
+                    <p class="alert alert-error">@registrationError</p>
+                }
+
+                <button type="submit" class="btn btn-primary" disabled="@submitting">
+                    @(submitting ? "Pošiljanje…" : "Prijavi se")
+                </button>
+            </EditForm>
+        }
+    </section>
 }
 
 @code {
@@ -49,10 +94,53 @@ else
     private bool loaded;
     private string? error;
 
+    private CreateRegistrationRequest form = new();
+    private bool submitting;
+    private string? registrationError;
+    private string? successMessage;
+
     protected override async Task OnParametersSetAsync()
     {
-        error = null;
         loaded = false;
+        form = new();
+        registrationError = null;
+        successMessage = null;
+
+        await LoadAsync();
+    }
+
+    private async Task RegisterAsync()
+    {
+        submitting = true;
+        registrationError = null;
+        successMessage = null;
+
+        try
+        {
+            var registration = await Api.RegisterAsync(Id, form);
+            successMessage = $"Prijava uspešna! Prijavljeni ste z naslovom {registration.Email}.";
+            form = new();
+        }
+        catch (ApiException ex)
+        {
+            registrationError = ex.Message;
+        }
+        catch (HttpRequestException)
+        {
+            registrationError = "Strežnik ni dosegljiv. Poskusite znova kasneje.";
+        }
+        finally
+        {
+            submitting = false;
+        }
+
+        // Refresh free spots, also after an error (e.g. someone else took the last spot).
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        error = null;
 
         try
         {
