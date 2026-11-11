@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EventSignup.Data\EventSignup.Data.csproj" />
+    <ProjectReference Include="..\EventSignup.Shared\EventSignup.Shared.csproj" />
   </ItemGroup>
 
 </Project>

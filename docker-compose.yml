@@ -1,8 +1,40 @@
+# Local development / demo setup: SQL Server + Web API + Blazor UI.
+#   docker compose up --build
+#   UI:  http://localhost:5200
+#   API: http://localhost:5100/events
+# The SA password defaults to a dev-only value; override it in a .env file (see .env.example).
+
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-EventSignup_Dev_2026!}"
+    # Host port 14333 avoids clashing with a locally installed SQL Server; only needed to connect from SSMS/VS.
+    ports:
+      - "14333:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" -b -o /dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
   api:
     build:
       context: .
       dockerfile: EventSignup.Api/Dockerfile
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver,1433;Database=EventSignup;User Id=sa;Password=${MSSQL_SA_PASSWORD:-EventSignup_Dev_2026!};TrustServerCertificate=True"
+      Cors__AllowedOrigins__0: "http://localhost:5200"
+      # Optional: without a key the search falls back to plain keyword matching.
+      Llm__ApiKey: "${GROQ_API_KEY:-}"
     ports:
       - "5100:8080"
 
@@ -10,5 +42,10 @@ services:
     build:
       context: .
       dockerfile: EventSignup/Dockerfile
+    depends_on:
+      - api
     ports:
       - "5200:8080"
+
+volumes:
+  sqlserver-data:

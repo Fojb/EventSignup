@@ -1,0 +1,53 @@
+@page "/"
+@inject EventsApiClient Api
+
+<PageTitle>Dogodki</PageTitle>
+
+<h1>Dogodki</h1>
+
+@if (error is not null)
+{
+    <p class="alert alert-error">@error</p>
+}
+else if (events is null)
+{
+    <p>Nalaganje…</p>
+}
+else if (events.Count == 0)
+{
+    <p>Ni dogodkov.</p>
+}
+else
+{
+    <ul class="event-list">
+        @foreach (var item in events)
+        {
+            <li class="event-card @(item.IsPast ? "is-past" : "")">
+                <a class="event-title" href="events/@item.Id">@item.Title</a>
+                <div class="event-meta">@item.StartsAt.ToString("dd. MM. yyyy, HH:mm") · @item.Location</div>
+                <AvailabilityBadge FreeSpots="item.FreeSpots" Capacity="item.Capacity" IsPast="item.IsPast" />
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private IReadOnlyList<EventSummaryResponse>? events;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            events = await Api.GetEventsAsync(null, null);
+        }
+        catch (ApiException ex)
+        {
+            error = ex.Message;
+        }
+        catch (HttpRequestException)
+        {
+            error = "Strežnik ni dosegljiv. Poskusite znova kasneje.";
+        }
+    }
+}

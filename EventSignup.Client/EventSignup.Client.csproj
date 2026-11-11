@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EventSignup.Shared\EventSignup.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

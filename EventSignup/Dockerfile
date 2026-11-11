@@ -1,4 +1,4 @@
-# Build context: solution root (the host references EventSignup.Client).
+# Build context: solution root (the host references EventSignup.Client, which references EventSignup.Shared).
 #   docker build -f EventSignup/Dockerfile -t eventsignup-web .
 
 # ---- build ----
@@ -8,10 +8,12 @@ WORKDIR /src
 # Copy only project files first so `dotnet restore` is cached until dependencies change.
 COPY EventSignup/EventSignup.csproj EventSignup/
 COPY EventSignup.Client/EventSignup.Client.csproj EventSignup.Client/
+COPY EventSignup.Shared/EventSignup.Shared.csproj EventSignup.Shared/
 RUN dotnet restore EventSignup/EventSignup.csproj
 
 COPY EventSignup/ EventSignup/
 COPY EventSignup.Client/ EventSignup.Client/
+COPY EventSignup.Shared/ EventSignup.Shared/
 # No --no-restore here: with it, the publish output is missing _framework/blazor.web.js.
 RUN dotnet publish EventSignup/EventSignup.csproj -c Release -o /app/publish
 

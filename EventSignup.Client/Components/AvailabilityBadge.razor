@@ -1,0 +1,20 @@
+@if (IsPast)
+{
+    <span class="badge badge-muted">Dogodek je že minil</span>
+}
+else if (FreeSpots <= 0)
+{
+    <span class="badge badge-danger">Zasedeno</span>
+}
+else
+{
+    <span class="badge badge-ok">Prosta mesta: @FreeSpots / @Capacity</span>
+}
+
+@code {
+    [Parameter, EditorRequired] public int FreeSpots { get; set; }
+
+    [Parameter, EditorRequired] public int Capacity { get; set; }
+
+    [Parameter, EditorRequired] public bool IsPast { get; set; }
+}

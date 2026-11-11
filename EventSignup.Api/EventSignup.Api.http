@@ -1,6 +1,21 @@
 @EventSignup.Api_HostAddress = http://localhost:5100
 
-GET {{EventSignup.Api_HostAddress}}/weatherforecast/
+### All events
+GET {{EventSignup.Api_HostAddress}}/events
 Accept: application/json
 
-###
+### Events in a date range (inclusive)
+GET {{EventSignup.Api_HostAddress}}/events?from=2026-11-15&to=2026-11-30
+Accept: application/json
+
+### Invalid range -> 400
+GET {{EventSignup.Api_HostAddress}}/events?from=2026-12-01&to=2026-11-01
+Accept: application/json
+
+### Event details
+GET {{EventSignup.Api_HostAddress}}/events/1
+Accept: application/json
+
+### Unknown event -> 404
+GET {{EventSignup.Api_HostAddress}}/events/9999
+Accept: application/json
