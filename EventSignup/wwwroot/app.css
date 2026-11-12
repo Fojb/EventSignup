@@ -30,6 +30,73 @@ h1:focus {
     outline: none;
 }
 
+.search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.search input {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+.link {
+    font: inherit;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-primary);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.alert-info {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: #ddf4ff;
+    border: 1px solid #54aeff;
+    color: #0a3069;
+}
+
+.month-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.chip {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+.chip:hover {
+    border-color: var(--color-primary);
+}
+
+.chip.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+
 input, .btn {
     font: inherit;
     padding: 0.4rem 0.6rem;
@@ -105,6 +172,45 @@ input, .btn {
     background: #ffebe9;
     border: 1px solid var(--color-danger);
     color: var(--color-danger);
+}
+
+.alert-success {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    background: #dafbe1;
+    border: 1px solid var(--color-ok);
+    color: var(--color-ok);
+}
+
+.registration {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    max-width: 28rem;
+}
+
+.registration h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.field label {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
 
 .event-details {

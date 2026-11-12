@@ -5,6 +5,34 @@
 
 <h1>Dogodki</h1>
 
+<form class="search" @onsubmit="SearchAsync" @onsubmit:preventDefault>
+    <input type="search" @bind="query" maxlength="@EventSearchRequest.QueryMaxLength"
+           placeholder="Npr. koncerti v Ljubljani naslednji teden" aria-label="Iskanje dogodkov" />
+    <button type="submit" class="btn btn-primary">Išči</button>
+</form>
+
+<nav class="month-tabs">
+    <button type="button" class="chip @(search is null && selectedMonth is null ? "active" : "")" @onclick="() => SelectAsync(null)">Vsi</button>
+    @foreach (var month in months)
+    {
+        <button type="button" class="chip @(search is null && month == selectedMonth ? "active" : "")" @onclick="() => SelectAsync(month)">
+            @MonthLabel(month)
+        </button>
+    }
+</nav>
+
+@if (search is not null)
+{
+    <div class="search-summary">
+        <span>Iskanje: @DescribeFilter(search.Filter)</span>
+        <button type="button" class="link" @onclick="() => SelectAsync(null)">Počisti iskanje</button>
+    </div>
+    @if (!search.UsedLlm)
+    {
+        <p class="alert alert-info">Pametno iskanje trenutno ni na voljo, zato so prikazani zadetki navadnega iskanja po besedah.</p>
+    }
+}
+
 @if (error is not null)
 {
     <p class="alert alert-error">@error</p>
@@ -15,7 +43,7 @@ else if (events is null)
 }
 else if (events.Count == 0)
 {
-    <p>Ni dogodkov.</p>
+    <p>@(search is not null ? "Ni dogodkov, ki bi ustrezali iskanju." : selectedMonth is null ? "Ni dogodkov." : "V tem mesecu ni dogodkov.")</p>
 }
 else
 {
@@ -32,14 +60,61 @@ else
 }
 
 @code {
+    private const int MonthsShown = 3;
+
+    private static readonly string[] MonthNames =
+    [
+        "Januar", "Februar", "Marec", "April", "Maj", "Junij",
+        "Julij", "Avgust", "September", "Oktober", "November", "December",
+    ];
+
+    private readonly DateOnly[] months = Enumerable.Range(0, MonthsShown)
+        .Select(i => new DateOnly(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(i))
+        .ToArray();
+
+    private DateOnly? selectedMonth;
+    private string query = "";
+    private EventSearchResponse? search;
     private IReadOnlyList<EventSummaryResponse>? events;
     private string? error;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync() => SelectAsync(null);
+
+    private Task SelectAsync(DateOnly? month)
     {
+        selectedMonth = month;
+        search = null;
+        query = "";
+
+        return LoadAsync(async () => month is null
+            ? await Api.GetEventsAsync(null, null)
+            : await Api.GetEventsAsync(month, month.Value.AddMonths(1).AddDays(-1)));
+    }
+
+    private Task SearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return Task.CompletedTask;
+        }
+
+        search = null;
+
+        return LoadAsync(async () =>
+        {
+            search = await Api.SearchAsync(query);
+            return search.Events;
+        });
+    }
+
+    private async Task LoadAsync(Func<Task<IReadOnlyList<EventSummaryResponse>>> load)
+    {
+        error = null;
+        events = null;
+
         try
         {
-            events = await Api.GetEventsAsync(null, null);
+            events = await load();
         }
         catch (ApiException ex)
         {
@@ -49,5 +124,30 @@ else
         {
             error = "Strežnik ni dosegljiv. Poskusite znova kasneje.";
         }
+    }
+
+    private static string MonthLabel(DateOnly month) =>
+        month.Year == DateTime.Today.Year ? MonthNames[month.Month - 1] : $"{MonthNames[month.Month - 1]} {month.Year}";
+
+    private static string DescribeFilter(EventSearchFilter filter)
+    {
+        var parts = new List<string>();
+
+        if (filter.From is not null || filter.To is not null)
+        {
+            parts.Add($"{filter.From?.ToString("dd. MM. yyyy") ?? "…"} – {filter.To?.ToString("dd. MM. yyyy") ?? "…"}");
+        }
+
+        if (!string.IsNullOrEmpty(filter.Location))
+        {
+            parts.Add($"kraj: {filter.Location}");
+        }
+
+        if (filter.Keywords.Count > 0)
+        {
+            parts.Add($"besede: {string.Join(", ", filter.Keywords)}");
+        }
+
+        return parts.Count > 0 ? string.Join(" · ", parts) : "vsi dogodki";
     }
 }
